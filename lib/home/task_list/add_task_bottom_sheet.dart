@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app_todo_sun_c11/firebase_utils.dart';
+import 'package:flutter_app_todo_sun_c11/model/task.dart';
 
 class AddTaskBottomSheet extends StatefulWidget {
   @override
@@ -111,6 +113,18 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
   }
 
   void addTask() {
-    if (formKey.currentState?.validate() == true) {}
+    if (formKey.currentState?.validate() == true) {
+      /// add task
+      Task task = Task(
+        title: title,
+        description: description,
+        dateTime: selectedDate,
+      );
+      FirebaseUtils.addTaskToFireStore(task).timeout(Duration(seconds: 1),
+          onTimeout: () {
+        print('Task added successfully');
+        Navigator.pop(context);
+      });
+    }
   }
 }
