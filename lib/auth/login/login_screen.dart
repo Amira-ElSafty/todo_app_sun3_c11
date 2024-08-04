@@ -4,7 +4,11 @@ import 'package:flutter_app_todo_sun_c11/app_colors.dart';
 import 'package:flutter_app_todo_sun_c11/auth/custom_text_form_field.dart';
 import 'package:flutter_app_todo_sun_c11/auth/register/register_screen.dart';
 import 'package:flutter_app_todo_sun_c11/dialog_utils.dart';
+import 'package:flutter_app_todo_sun_c11/firebase_utils.dart';
 import 'package:flutter_app_todo_sun_c11/home/home_screen.dart';
+import 'package:provider/provider.dart';
+
+import '../../provider/auth_user_provider.dart';
 
 class LoginScreen extends StatelessWidget {
   static const String routeName = 'login_screen';
@@ -114,6 +118,14 @@ class LoginScreen extends StatelessWidget {
         final credential = await FirebaseAuth.instance
             .signInWithEmailAndPassword(
                 email: emailController.text, password: passwordController.text);
+        var user = await FirebaseUtils.readUserFromFireStore(
+            credential.user?.uid ?? "");
+        if (user == null) {
+          return;
+        }
+        var authProvider =
+            Provider.of<AuthUserProvider>(context, listen: false);
+        authProvider.updateUser(user);
         //todo: hideLoading
         DialogUtils.hideLoading(context);
         //todo: showMessage
@@ -123,7 +135,7 @@ class LoginScreen extends StatelessWidget {
             title: 'Success',
             posActionName: 'Ok',
             posAction: () {
-              Navigator.of(context).pushNamed(HomeScreen.routeName);
+              Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
             });
         print('login scuccessfully');
         print(credential.user?.uid ?? '');
@@ -158,10 +170,11 @@ class LoginScreen extends StatelessWidget {
         DialogUtils.hideLoading(context);
         //todo: showMessage
         DialogUtils.showMessage(
-            context: context,
-            content: e.toString(),
-            title: 'Error',
-            posActionName: 'Ok');
+          context: context,
+          content: e.toString(),
+          title: 'Error',
+          posActionName: 'Ok',
+        );
         print(e.toString());
       }
     }

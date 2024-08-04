@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app_todo_sun_c11/app_colors.dart';
 import 'package:flutter_app_todo_sun_c11/firebase_utils.dart';
 import 'package:flutter_app_todo_sun_c11/model/task.dart';
+import 'package:flutter_app_todo_sun_c11/provider/auth_user_provider.dart';
 import 'package:flutter_app_todo_sun_c11/provider/list_provider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +17,7 @@ class TaskListItem extends StatelessWidget {
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
     var listProvider = Provider.of<ListProvider>(context);
+    var authProvider = Provider.of<AuthUserProvider>(context);
     return Container(
       margin: EdgeInsets.all(12),
       child: Slidable(
@@ -31,10 +33,16 @@ class TaskListItem extends StatelessWidget {
               borderRadius: BorderRadius.circular(15),
               onPressed: (context) {
                 /// delete task
-                FirebaseUtils.deleteTaskFromFireStore(task)
-                    .timeout(Duration(milliseconds: 500), onTimeout: () {
+                FirebaseUtils.deleteTaskFromFireStore(
+                        task, authProvider.currentUser!.id!)
+                    .then((value) {
                   print('Task deleted Successfully');
-                  listProvider.getAllTasksFromFireStore();
+                  listProvider
+                      .getAllTasksFromFireStore(authProvider.currentUser!.id!);
+                }).timeout(Duration(milliseconds: 500), onTimeout: () {
+                  print('Task deleted Successfully');
+                  listProvider
+                      .getAllTasksFromFireStore(authProvider.currentUser!.id!);
                 });
               },
               backgroundColor: AppColors.redColor,

@@ -1,12 +1,12 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_todo_sun_c11/auth/login/login_screen.dart';
 import 'package:flutter_app_todo_sun_c11/auth/register/register_screen.dart';
 import 'package:flutter_app_todo_sun_c11/home/home_screen.dart';
 import 'package:flutter_app_todo_sun_c11/my_theme_data.dart';
+import 'package:flutter_app_todo_sun_c11/provider/auth_user_provider.dart';
 import 'package:flutter_app_todo_sun_c11/provider/list_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -20,9 +20,14 @@ void main() async {
               messagingSenderId: '276618511161',
               projectId: 'todo-app-sun-c11'))
       : await Firebase.initializeApp();
-  await FirebaseFirestore.instance.disableNetwork();
-  runApp(ChangeNotifierProvider(
-      create: (context) => ListProvider(), child: MyApp()));
+  // await FirebaseFirestore.instance.disableNetwork();
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (context) => ListProvider()),
+      ChangeNotifierProvider(create: (_) => AuthUserProvider())
+    ],
+    child: MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -39,6 +44,7 @@ class MyApp extends StatelessWidget {
         LoginScreen.routeName: (context) => LoginScreen(),
       },
       theme: MyThemeData.lightTheme,
+      locale: Locale('es'),
     );
   }
 }

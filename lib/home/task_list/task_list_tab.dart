@@ -1,6 +1,7 @@
 import 'package:easy_date_timeline/easy_date_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_todo_sun_c11/home/task_list/task_list_item.dart';
+import 'package:flutter_app_todo_sun_c11/provider/auth_user_provider.dart';
 import 'package:flutter_app_todo_sun_c11/provider/list_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -13,15 +14,17 @@ class _TaskListTabState extends State<TaskListTab> {
   @override
   Widget build(BuildContext context) {
     var listProvider = Provider.of<ListProvider>(context);
+    var authProvider = Provider.of<AuthUserProvider>(context);
     if (listProvider.tasksList.isEmpty) {
-      listProvider.getAllTasksFromFireStore();
+      listProvider.getAllTasksFromFireStore(authProvider.currentUser!.id!);
     }
     return Column(
       children: [
         EasyDateTimeLine(
           initialDate: listProvider.selectDate,
           onDateChange: (selectedDate) {
-            listProvider.changeSelectDate(selectedDate);
+            listProvider.changeSelectDate(
+                selectedDate, authProvider.currentUser!.id!);
           },
           headerProps: const EasyHeaderProps(
             monthPickerType: MonthPickerType.switcher,
